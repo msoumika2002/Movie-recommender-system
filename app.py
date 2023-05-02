@@ -2,12 +2,17 @@ import streamlit as st
 import pickle
 import pandas as pd
 import requests
+import zipfile
 st.set_page_config(layout="wide")
 backgroundColor = '#273346'
 def fetch_poster(movie_id):
     response = requests.get('https://api.themoviedb.org/3/movie/{}?api_key=e4bf05014f94b5f0b973d4d2a8bbf48c&language=en-US'.format(movie_id))
     data=response.json()
     return "https://image.tmdb.org/t/p/w500"+data['poster_path']
+
+with zipfile.ZipFile('similarity.zip', 'r') as zip_ref:
+    zip_ref.extract('similarity.pkl')
+
 def recommend(movie):
     m_index = movies[movies['title'] == movie].index[0]
     distances = similarity[m_index]
@@ -27,7 +32,8 @@ def recommend(movie):
 movies_dict=pickle.load(open('movie_dict.pkl','rb'))
 movies=pd.DataFrame(movies_dict)
 
-similarity=pickle.load(open('similarity.pkl','rb'))
+with open('similarity.pkl', 'rb') as f:
+    similarity = pickle.load(f)
 
 st.title('Movie Recommender System')
 
